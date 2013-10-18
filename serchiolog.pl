@@ -92,6 +92,7 @@ my $stvarc = $dbh->prepare($insvarc);
 my $instes = $insncons;
 my $sttes = $dbh->prepare($instes);
 
+my $dummy = 1;
 
 open RES, ">report.txt" or die ("Canot open file: $!\n");
 for(@names){ #per ogni fpage
