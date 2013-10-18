@@ -13,13 +13,13 @@ my $host = "10.98.2.159";
 
 if ( $ARGV[0] eq 'shell'){
 	my $regex = qr(^(?<data>\d{4}|\d{4}-\d\d|\d{4}-\d\d-\d\d)\s+(?<utente>.*));
-	my $quando='';
-	my $chi='';
-	while(<STDIN>){
-		chomp;
-		my @values = split /\s+/;
-	}
-	exit;
+my $quando='';
+my $chi='';
+while(<STDIN>){
+	chomp;
+	my @values = split /\s+/;
+}
+exit;
 }
 
 my $LOCKFILE = "./SERCHIO.LOCK";
@@ -108,17 +108,19 @@ for(@names){ #per ogni fpage
 					#print RES "$row\n";
 					#print "Cognome: ".neat(substr($+{nominativo},0,16))." - Nome: ".neat(substr($+{nominativo},16))."(Tessera $+{tessera})";
 					#print " - $+{evento} alle $+{ore} il $+{giorno} ($+{pulsar} $+{varco} $+{verso})\n";
-					$sttrans->execute( (
-							convdate($+{giorno}),
-							$+{ore},
-							$+{pulsar},
-							$+{concen},
-							$+{tessera},
-							$+{evento},
-							$+{varco},
-							$+{verso},
-							neat($+{nominativo})
-						) ) or die($sttrans->errstr);
+					if(not $dummy){
+						$sttrans->execute( (
+								convdate($+{giorno}),
+								$+{ore},
+								$+{pulsar},
+								$+{concen},
+								$+{tessera},
+								$+{evento},
+								$+{varco},
+								$+{verso},
+								neat($+{nominativo})
+							) ) or die($sttrans->errstr);
+					}
 				}elsif($row =~ $EV_NCONS ){
 					#print RES "$row\n";
 					#print "Tessera: $+{tessera} ore: $+{ore} - pulsar: $+{pulsar} il $+{giorno} attraverso $+{varco}\n";
