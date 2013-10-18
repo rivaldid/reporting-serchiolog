@@ -124,15 +124,17 @@ for(@names){ #per ogni fpage
 				}elsif($row =~ $EV_NCONS ){
 					#print RES "$row\n";
 					#print "Tessera: $+{tessera} ore: $+{ore} - pulsar: $+{pulsar} il $+{giorno} attraverso $+{varco}\n";
-					$stncons->execute((
-							convdate($+{giorno}),
-							$+{ore},
-							$+{pulsar},
-							$+{concen},
-							$+{tessera},
-							$+{evento},
-							$+{varco}
-						));
+					if(not $dummy){
+						$stncons->execute((
+								convdate($+{giorno}),
+								$+{ore},
+								$+{pulsar},
+								$+{concen},
+								$+{tessera},
+								$+{evento},
+								$+{varco}
+							));
+					}
 				}elsif($row =~ $EV_VARNAP || $row =~ $EV_VARNCH || $row =~ $EV_SCASSO || $row =~ $EV_VARCHI){
 					#print RES "$row\n";
 					#print "$+{evento} il $+{giorno} alle $+{ore} $+{varco}\n";
