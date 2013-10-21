@@ -45,6 +45,8 @@ my $TESSERA =	qr!\d{8}!;
 
 my $PREAMBLE = qr!(?<giorno>$DATA)\s(?<ore>$ORA)\s(?<pulsar>$PULSAR)\s{12}(?<concen>$CONCEN)!;
 
+my $EV_TAAB = qr!(?<giorno>$DATA)\s(?<ore>$ORA)\s(?<operatore>\w{6})\s+(?<evento>Tastiera Abilitata)!;
+
 my $EV_TRANS =	qr!$PREAMBLE\s(?<tessera>$TESSERA)\s(?<evento>Transito effettuato)\s\s(?<varco>$VARCO)(?<verso>$VERSO)\s(?<nominativo>.+)!;
 my $EV_NCONS =	qr!$PREAMBLE\s(?<tessera>$TESSERA)\s(?<evento>Transito non consentito)\s(?<varco>$VARCO)!;
 
@@ -94,6 +96,8 @@ my $sttes = $dbh->prepare($instes);
 
 my $dummy = 1;
 
+open UNMACHED, ">unmatched.txt" or die($!);
+
 open RES, ">report.txt" or die ("Canot open file: $!\n");
 for(@names){ #per ogni fpage
 	$_->extractToFileNamed("temp");
@@ -138,26 +142,34 @@ for(@names){ #per ogni fpage
 				}elsif($row =~ $EV_VARNAP || $row =~ $EV_VARNCH || $row =~ $EV_SCASSO || $row =~ $EV_VARCHI){
 					#print RES "$row\n";
 					#print "$+{evento} il $+{giorno} alle $+{ore} $+{varco}\n";
-					$stvarc->execute((
-							convdate($+{giorno}),
-							$+{ore},
-							$+{pulsar},
-							$+{concen},
-							$+{evento},
-							$+{varco}
-						));
+					if(not $dummy){
+						$stvarc->execute((
+								convdate($+{giorno}),
+								$+{ore},
+								$+{pulsar},
+								$+{concen},
+								$+{evento},
+								$+{varco}
+							));
+					}
 				}elsif($row =~ $EV_TESIN || $row =~ $EV_TESSO || $row =~ $EV_TESOR){
 					#print RES "$row\n";
 					#print "$+{evento} ($+{tessera}) il $+{giorno} alle $+{ore} $+{varco}\n";
-					$sttes->execute((
-							convdate($+{giorno}),
-							$+{ore},
-							$+{pulsar},
-							$+{concen},
-							$+{tessera},
-							$+{evento},
-							$+{varco}
-						));
+					if(not $dummy){
+						$sttes->execute((
+								convdate($+{giorno}),
+								$+{ore},
+								$+{pulsar},
+								$+{concen},
+								$+{tessera},
+								$+{evento},
+								$+{varco}
+							));
+					}
+				}elsif( $row =~ $EV_TAAB ){
+					#print "Il $+{giorno} alle $+{ore} - $+{evento} per $+{operatore}\n";
+				}else{
+					print UNMACHED $row,"\n";
 				}
 			}
 		}
@@ -173,5 +185,6 @@ for(@names){ #per ogni fpage
 	unlink "temp";
 }
 close RES;
+close UNMACHED;
 $dbh->disconnect;
 unlink $LOCKFILE;
