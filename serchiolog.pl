@@ -46,6 +46,15 @@ my $TESSERA =	qr!\d{8}!;
 my $PREAMBLE = qr!(?<giorno>$DATA)\s(?<ore>$ORA)\s(?<pulsar>$PULSAR)\s{12}(?<concen>$CONCEN)!;
 
 my $EV_TAAB = qr!(?<giorno>$DATA)\s(?<ore>$ORA)\s(?<operatore>\w{6})\s+(?<evento>Tastiera Abilitata)!;
+my $EV_ALL = qr!$PREAMBLE\s+Allarmi Acquisiti(?<varchi>(?:\(H\s\d\d\))|(?:\(H:\d-\d\d\)))!;
+my $EV_TAMPER = qr!$PREAMBLE\s+(?<evento>Allarme Tamper)\s(?<varco>$VARCO)!;
+my $EV_CSTATO = qr!$PREAMBLE\s+(?<evento>Comando Cambio Stato Lettore)\s$VARCO\sABILITATO\s\.\s\[\s(?<operatore>\w{6})\s\]!;
+my $EV_CADUTA = qr!$PREAMBLE\s+(?<evento>Caduta Linea)!;
+my $EV_RICPROG = qr!$PREAMBLE\s+(?<evento>Richiesta Invio Programmazione)\s\.\s\[\s(?<operatore>\w+)\s\]!;
+my $EV_FINEPROG = qr!$PREAMBLE\s+(?<evento>Fine invio dati di programmazione)!;
+my $EV_MINPULSAR = qr!$PREAMBLE\s+(?<evento>Linea Mini Pulsar)!;
+my $EV_TESANON = qr!$PREAMBLE\s\*{8}\s(?<evento>Transito effettuato)\s\s(?<varco>$VARCO)(?<verso>$VERSO)\s(?<nominativo>.+)!;
+
 
 my $EV_TRANS =	qr!$PREAMBLE\s(?<tessera>$TESSERA)\s(?<evento>Transito effettuato)\s\s(?<varco>$VARCO)(?<verso>$VERSO)\s(?<nominativo>.+)!;
 my $EV_NCONS =	qr!$PREAMBLE\s(?<tessera>$TESSERA)\s(?<evento>Transito non consentito)\s(?<varco>$VARCO)!;
@@ -90,6 +99,33 @@ my $stncons = $dbh->prepare($insncons);
 
 my $insvarc = "INSERT INTO report (data,ora,centrale,concentratore,azione,sensore) VALUES(?,?,?,?,?,?)";
 my $stvarc = $dbh->prepare($insvarc);
+
+my $instaab = "INSERT INTO report (data,ora,azione,utente) VALUES(?,?,?,?)";
+my $sttaab = $dbh->prepare($instaab);
+
+my $insall = $insvarc;
+my $stall = $dbh->prepare($insall);
+
+my $instamper = $insvarc;
+my $sttamper = $dbh->prepare($instamper);
+
+my $inscstato = "INSERT INTO report (data,ora,centrale,concentratore,azione,utente) VALUES(?,?,?,?,?)";
+my $stcstato = $dbh->prepare($inscstato);
+
+my $inscaduta = "INSERT INTO report (data,ora,centrale,concentratore,azione) VALUES(?,?,?,?,?)";
+my $stcaduta = $dbh->prepare($inscaduta);
+
+my $insricprog = $inscstato;
+my $stricprog = $dbh->prepare($insricprog);
+
+my $insfineprog = $inscaduta;
+my $stfineprog = $dbh->prepare($insfineprog);
+
+my $insminipulsar = $inscaduta;
+my $stminipulsar = $dbh->prepare($insminipulsar);
+
+my $instesanon = "INSERT INTO report (data,ora,centrale,concentratore,azione,sensore,direzione,utente) VALUES(?,?,?,?,?,?,?,?)";
+my $sttesanon = $dbh->prepare($instesanon);
 
 my $instes = $insncons;
 my $sttes = $dbh->prepare($instes);
@@ -167,13 +203,38 @@ for(@names){ #per ogni fpage
 							));
 					}
 				}elsif( $row =~ $EV_TAAB ){
-					#print "Il $+{giorno} alle $+{ore} - $+{evento} per $+{operatore}\n";
+					print "Il $+{giorno} alle $+{ore} - $+{evento} per $+{operatore}\n";
+					if($dummy){
+						$sttaab->execute((
+								convdate($+{giorno}),
+								$+{ore},
+								$+{azione},
+								$+{utente}
+							));
+					}
+					
+				}elsif( $row =~ $EV_ALL ){
+					#print "$row\n";
+				}elsif( $row =~ $EV_TAMPER ){
+					#print "$row\n";
+				}elsif( $row =~ $EV_CSTATO ){
+					#print "$row\n";	
+				}elsif( $row =~ $EV_CADUTA ){
+					#print "$row\n";	
+				}elsif( $row =~ $EV_RICPROG ){
+					#print "$row\n";	
+				}elsif( $row =~ $EV_FINEPROG ){
+					#print "$row\n";	
+				}elsif( $row =~ $EV_MINPULSAR ){
+					#print "$row\n";	
+				}elsif( $row =~ $EV_TESANON ){
+					#print "--- $row\n";	
 				}else{
 					print UNMACHED $row,"\n";
 				}
 			}
 		}
-	} else {
+	}else{
 		while(<TEMP>){
 			if(m/unicodestring="(.*)" \/>/i){
 				my $match = $1;
@@ -183,7 +244,7 @@ for(@names){ #per ogni fpage
 	}
 	close TEMP;
 	unlink "temp";
-}
+	}
 close RES;
 close UNMACHED;
 $dbh->disconnect;
