@@ -131,7 +131,10 @@ my $sttesanon = $dbh->prepare($instesanon);
 my $instes = $insncons;
 my $sttes = $dbh->prepare($instes);
 
-my $dummy = 1;
+my $inslinea = "INSERT INTO report (azione) VALUES(?)";
+my $stlinea = $dbh->prepare($inslinea);
+
+my $dummy = 0;
 
 open UNMACHED, ">unmatched.txt" or die($!);
 
@@ -310,6 +313,13 @@ for(@names){ #per ogni fpage
 								$+{varco},
 								$+{verso},
 								$+{utente}
+							));
+					}
+				}elsif( $row =~ $EV_LINEA ){
+					#print "$row\n";
+					if( not $dummy ){
+						$stlinea->execute((
+								$+{evento}
 							));
 					}
 				}else{
