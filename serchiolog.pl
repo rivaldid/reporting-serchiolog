@@ -110,13 +110,13 @@ my $stall = $dbh->prepare($insall);
 my $instamper = $insvarc;
 my $sttamper = $dbh->prepare($instamper);
 
-my $inscstato = "INSERT INTO report (data,ora,centrale,concentratore,azione,utente) VALUES(?,?,?,?,?)";
+my $inscstato = "INSERT INTO report (data,ora,centrale,concentratore,azione,sensore,utente) VALUES(?,?,?,?,?,?,?)";
 my $stcstato = $dbh->prepare($inscstato);
 
 my $inscaduta = "INSERT INTO report (data,ora,centrale,concentratore,azione) VALUES(?,?,?,?,?)";
 my $stcaduta = $dbh->prepare($inscaduta);
 
-my $insricprog = $inscstato;
+my $insricprog = "INSERT INTO report (data,ora,centrale,concentratore,azione,utente) VALUES(?,?,?,?,?,?)";
 my $stricprog = $dbh->prepare($insricprog);
 
 my $insfineprog = $inscaduta;
@@ -307,9 +307,6 @@ for(@names){ #per ogni fpage
 								$+{centrale},
 								$+{concentratore},
 								$+{evento},
-								$+{varco},
-								$+{verso},
-								$+{utente},
 								$+{varco},
 								$+{verso},
 								$+{utente}
