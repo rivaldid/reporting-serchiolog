@@ -37,7 +37,7 @@ if( $in =~ /\d{4}(-\d\d(-\d\d)?)?/ ){
 	$row = $sth->fetchrow_hashref;
 	$current = $row->{utente};
 	say "Passaggi Bussola di $current per il giorno $row->{data}";
-	do{
+	while($row){
 		if($current ne $row->{utente}){
 			print "\n\n";
 			<STDIN>;
@@ -46,7 +46,7 @@ if( $in =~ /\d{4}(-\d\d(-\d\d)?)?/ ){
 		$current = $row->{utente};
 		say "\t$row->{ora} - $row->{direzione}";
 		$row = $sth->fetchrow_hashref;
-	}while($row);
+	}
 }
 
 $dbh->disconnect;
