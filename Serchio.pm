@@ -13,31 +13,6 @@ my $dbh;
 my $sth;
 my $data = undef;
 
-BEGIN {
-	require Exporter;
-	our $VERSION = 1.00;
-	our @ISA = qw(Exporter);
-	our @EXPORT = qw(setdata feed same);
-	our @EXPORT_OK = qw();
-	use Config::File qw(read_config_file);
-
-	$config = read_config_file("./Serchio.conf");
-
-	$dbh = DBI->connect(
-		"dbi:mysql:database=$config->{database};host=$config->{host}",
-		$config->{username},
-		$config->{password}
-	) or die($DBI::errstr);
-
-	$sth = $dbh->prepare("SELECT data,ora,direzione,utente,badge,azione FROM passaggi_bussola WHERE data like ?") or die($sth->errstr);
-}
-
-END {
-
-	$sth->finish;
-	$dbh->disconnect;
-}
-
 sub setdata{
 	my $d = shift;
 	if ( $d =~ /\d{4}-\d\d-\d\d/ ){
@@ -74,6 +49,32 @@ sub same{
 	my $s = ($lh+$lm) - ($fh+$fm);
 
 	return Compare($former, $latter) || ($s == 0 || $s == 1);
+}
+
+BEGIN {
+	require Exporter;
+	our $VERSION = 1.00;
+	our @ISA = qw(Exporter);
+	our @EXPORT = qw(setdata feed same);
+	our @EXPORT_OK = qw();
+	use Config::File qw(read_config_file);
+
+	$config = read_config_file("./Serchio.conf");
+
+	$dbh = DBI->connect(
+		"dbi:mysql:database=$config->{database};host=$config->{host}",
+		$config->{username},
+		$config->{password}
+	) or die($DBI::errstr);
+
+
+	$sth = $dbh->prepare("SELECT data,ora,direzione,utente,badge,azione FROM passaggi_bussola WHERE data like ?") or die($sth->errstr);
+}
+
+END {
+
+	$sth->finish;
+	$dbh->disconnect;
 }
 
 1;
