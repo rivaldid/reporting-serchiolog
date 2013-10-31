@@ -2,6 +2,8 @@ package Serchio;
 
 use DBI;
 use Data::Dumper;
+use Data::Compare;
+use Storable qw(nstore_fd fd_retrieve);
 
 use warnings;
 use strict;
@@ -15,7 +17,7 @@ BEGIN {
 	require Exporter;
 	our $VERSION = 1.00;
 	our @ISA = qw(Exporter);
-	our @EXPORT = qw(setdata feed storeall unstoreall);
+	our @EXPORT = qw(setdata feed same);
 	our @EXPORT_OK = qw();
 	use Config::File qw(read_config_file);
 
@@ -41,53 +43,37 @@ sub setdata{
 	if ( $d =~ /\d{4}-\d\d-\d\d/ ){
 		$data = $d;
 	}
+
+	my $record;
+	$sth->execute($data) or die($sth->errstr);
+	open CACHE, ">serchio.cache" or die($!);
+
+	while($record = $sth->fetchrow_hashref){
+		nstore_fd $record, \*CACHE;
+	}
+
+	close CACHE;
+	open CACHE, "<serchio.cache" or die($!);
 }
 
-sub storeall{
-	if($data){
-		use Storable qw(nstore_fd);
-		my $file = shift or die("Filename required");
-		open STORE, ">>$file" or die($!);
-		$sth->execute($data) or die($sth->errstr);
-
-		my $hashref = $sth->fetchrow_hashref;
-		while($hashref){
-			nstore_fd $hashref, \*STORE;
-			$hashref = $sth->fetchrow_hashref;
-		}
-
-		close STORE;
-
-
-	}else{
-		print "Date is already set\n";
-		return 0;
-	}
+sub feed{
+	my $record;
+	eval{
+		$record = fd_retrieve \*CACHE;
+	};
+	return $record;
 }
 
-sub unstoreall{
-	use Storable qw(fd_retrieve);
-	my $file = shift or die("Filename needed");
-	my $hashref;
+sub same{
+	my $former = shift;
+	my $latter = shift;
 
-	open STORE, "<$file" or die($1);
-	$hashref = fd_retrieve(\*STORE);
+	my ($fh, $fm) = split /:/,$former->{ora};
+	my ($lh, $lm) = split /:/,$latter->{ora};
 
-	while($hashref){
-		print Dumper($hashref);
-		$hashref = fd_retrieve(\*STORE);
-	}
-	close STORE;
+	my $s = ($lh+$lm) - ($fh+$fm);
+
+	return Compare($former, $latter) || ($s == 0 || $s == 1);
 }
 
 1;
-
-
-
-
-
-
-
-
-
-
