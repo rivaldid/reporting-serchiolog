@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 use Archive::Zip;
 use DBI;
 
