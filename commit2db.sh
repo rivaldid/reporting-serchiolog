@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/local/bin/bash
 
-MOUNTPOINT=/root/xpscache/
-RSYNCFROM=/root/xpscache/DC/REPORT/Export/Serchio/
+MOUNTPOINT=/mnt/13/
+RSYNCFROM=DC/REPORT/Export/Serchio/
 RSYNCTO=/root/script/serchiolog/xpsbucket
 
 #SAVEIFS=${IFS}
@@ -15,17 +15,16 @@ RSYNCTO=/root/script/serchiolog/xpsbucket
 
 if [ $? -eq 0 ]; then
 
-	/bin/echo "==========> RSYNCO DALLA 13"
+	/bin/echo "==========> RSYNC 13 e DB 159"
 	
 	# BUTTA IN DB
-	for item in  $(/usr/local/bin/rsync -r --exclude '* *' --ignore-existing --out-format "%n" ${RSYNCFROM} ${RSYNCTO} |grep xps)
+	for item in  $(/usr/local/bin/rsync -r --exclude '* *' --ignore-existing --out-format "%n" ${MOUNTPOINT}${RSYNCFROM} ${RSYNCTO} |grep xps)
 	do
-		/bin/echo "serchiolog: processing file $item"
+		/bin/echo "----------> serchiolog: processing file $item"
 		/root/script/serchiolog/serchiolog.pl ${RSYNCTO}/$item # get things done
 	done
 
-
-	echo "==========> Ok, ho fatto. Smonto e ciao."
+	/bin/echo "==========> Ok, ho fatto. Smonto e ciao."
 	/sbin/umount ${MOUNTPOINT}
 
 else
