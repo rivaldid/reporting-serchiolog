@@ -26,6 +26,10 @@ if [ $? -eq 0 ]; then
 
 	/bin/echo "==========> Ok, ho fatto. Smonto e ciao."
 	/sbin/umount ${MOUNTPOINT}
+	
+	/bin/echo "==========> aspe, mo faccio una cosa che serve a dario"
+	/usr/local/bin/mysql --host=localhost --user=serchio --password=serchiouser -e "SELECT '----------> mo inizio'; USE SERCHIO; CALL route(); SELECT '----------> ok ho fatto'"
+
 
 else
 	/bin/echo "==========> FAIL at mount"
