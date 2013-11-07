@@ -4,6 +4,8 @@ MOUNTPOINT=/mnt/13/
 RSYNCFROM=DC/REPORT/Export/Serchio/
 RSYNCTO=/root/script/serchiolog/xpsbucket
 
+BINCOPPIE=/root/script/serchiolog/generacoppie.pl
+
 #SAVEIFS=${IFS}
 #IFS=;
 
@@ -28,7 +30,7 @@ if [ $? -eq 0 ]; then
 	/sbin/umount ${MOUNTPOINT}
 	
 	/bin/echo "==========> aspe, mo faccio una cosa che serve a dario"
-	/usr/local/bin/mysql --host=localhost --user=serchio --password=serchiouser -e "SELECT '----------> mo inizio'; USE SERCHIO; CALL route(); SELECT '----------> ok ho fatto'"
+	/usr/bin/perl ${BINCOPPIE}
 
 
 else
