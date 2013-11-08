@@ -137,7 +137,7 @@ my $stlinea = $dbh->prepare($inslinea);
 
 my $dummy = 0;
 
-open UNMACHED, ">unmatched.txt" or die($!);
+open UNMACHED, ">>unmatched.txt" or die($!);
 
 open RES, ">report.txt" or die ("Canot open file: $!\n");
 for(@names){ #per ogni fpage
