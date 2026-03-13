@@ -53,6 +53,8 @@ git remote set-url --add origin https://github.com/rivaldid/reporting-serchiolog
 git push --force -u origin master
 ```
 
+> **Attenzione:** se il remote ha già una history diversa (es. GitHub aveva il repo originale con i file `.xps`), il push normale viene rifiutato con `rejected (fetch first)`. Questo succede perché dopo filter-repo la history locale non coincide più con quella remota. In questo caso è necessario forzare la sovrascrittura con `--force`.
+
 ---
 
 ## Configurazione multi-remote (push simultaneo su Gitea + GitHub)
